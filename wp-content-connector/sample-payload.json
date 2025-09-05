@@ -1,12 +1,7 @@
 {
-  "api_key": "YOUR_TEST_KEY_12345",
   "title": "Sample Post Title",
-  "description": "This is a sample description for testing purposes.",
-  "tags": [
-    "news",
-    "update",
-    "sample"
-  ],
+  "description": "This is a sample description",
+  "tags": ["news", "update"],
   "category": "Announcements",
-  "media_url": "https://example.com/media/sample-video.mp4"
+  "media_url": "https://example.com/media/sample.mp4"
 }
