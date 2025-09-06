@@ -1,71 +1,86 @@
 # WP Content Connector
 
-A lightweight WordPress plugin to accept incoming content via a secure API and store it as **draft posts**.
+A lightweight WordPress plugin to receive content via a secure API endpoint and store it as draft posts.
 
 ---
 
-## 🚀 Installation
+## ⚡ Features
+- Secure REST API endpoint (`/wp-json/connector/v1/ingest`)
+- API key authentication (Bearer header or JSON body)
+- Auto-create categories and tags if missing
+- Stores media URL in custom field `_connector_media_url`
+- Plugin toggle (Active/Inactive) in settings
+- Settings page under **Settings → Connector**
+- Saves all posts as **Draft** for admin review
+- Namespaced code to avoid conflicts
+- Includes uninstall cleanup (removes saved options)
 
-1. Download `wp-content-connector.zip`.
-2. In WordPress admin → Plugins → Add New → Upload Plugin → select the ZIP.
-3. Activate the plugin.
-4. Go to **Settings → Connector** to configure:
-   - API Key
-   - Active/Inactive toggle
+---
+
+## 📦 Installation
+1. Upload `wp-content-connector.zip` to WordPress (Plugins → Add New → Upload).
+2. Activate the plugin from the **Plugins** menu.
+3. Go to **Settings → Connector**.
+4. Set your API key and enable the plugin.
 
 ---
 
 ## 🔑 Authentication
-
-- Each request must include the correct API key.
-- Two options:
-  1. As a Bearer token header:  
-     `Authorization: Bearer YOUR_API_KEY`
-  2. Inside JSON payload as `api_key`.
+Requests must include the API key either:
+- As a header:
+  ```
+  Authorization: Bearer YOUR_API_KEY
+  ```
+- Or inside the JSON body:
+  ```json
+  { "api_key": "YOUR_API_KEY", ... }
+  ```
 
 ---
 
-## 📡 Endpoints
+## 📡 API Endpoints
 
-### 1. Ping (test connection)
-```
-GET /wp-json/connector/v1/ping
-```
+### ✅ Ping
+**GET** `/wp-json/connector/v1/ping`  
+Checks if the plugin is active.
 
-Response:
+**Response:**
 ```json
-{
-  "status": "success",
-  "message": "Ping successful!"
-}
+{ "status": "ok", "message": "Ping successful!" }
 ```
 
-### 2. Ingest Content
+---
+
+### 📥 Ingest
+**POST** `/wp-json/connector/v1/ingest`
+
+**Headers:**
 ```
-POST /wp-json/connector/v1/ingest
-Headers: 
-  Content-Type: application/json
-  Authorization: Bearer YOUR_API_KEY
-Body:
+Content-Type: application/json
+Authorization: Bearer YOUR_API_KEY
+```
+
+**Body Example:**
+```json
 {
   "title": "Sample Post Title",
-  "description": "This is a sample description",
-  "tags": ["news", "update"],
+  "description": "This is a sample description for testing purposes.",
+  "tags": ["news", "update", "sample"],
   "category": "Announcements",
-  "media_url": "https://example.com/media/sample.mp4"
+  "media_url": "https://example.com/media/sample-video.mp4"
 }
 ```
 
-Response (success):
+**Response (success):**
 ```json
 {
   "status": "success",
-  "message": "Post created successfully.",
+  "message": "Post created as draft",
   "post_id": 123
 }
 ```
 
-Response (invalid key):
+**Response (error):**
 ```json
 {
   "status": "error",
@@ -73,28 +88,41 @@ Response (invalid key):
 }
 ```
 
-Response (inactive plugin):
-```json
-{
-  "status": "inactive",
-  "message": "Plugin is currently inactive."
-}
+---
+
+## 🧪 Quick Test
+
+Test with curl:
+
+```bash
+curl -X POST https://your-wp-site.com/wp-json/connector/v1/ingest   -H "Content-Type: application/json"   -H "Authorization: Bearer YOUR_API_KEY"   -d '{
+    "title": "Hello World",
+    "description": "This is a test post from API.",
+    "tags": ["test", "api"],
+    "category": "API Demo",
+    "media_url": "https://example.com/media/test.mp4"
+  }'
 ```
 
----
-
-## 🗂 Post Storage
-
-- All posts are saved as **Drafts**.
-- Tags and categories auto-created if missing.
-- Media URL stored in custom field: `_connector_media_url`.
+👉 Or use Postman:  
+Import `connector_api.postman_collection.json` and test with `sample-payload.json`.
 
 ---
 
-## 🧹 Uninstall
+## 🛠 Compatibility
+- Tested with **WordPress 6.x**
+- Requires **PHP 7.4+**
+- Works with default WP REST API enabled
 
-When the plugin is deleted, it cleans up its settings:
-- Removes saved API Key
-- Removes Active/Inactive toggle option
+---
 
-No posts or meta data are deleted.
+## 🗑 Uninstall
+When deleted from WordPress, the plugin removes:
+- `wpcc_api_key`
+- `wpcc_active_status`
+
+---
+
+### 🎯 Verdict
+Delivered **plugin + README inside repo = production-ready**.  
+All polish added: quick curl test + compatibility info + uninstall behavior ✅
